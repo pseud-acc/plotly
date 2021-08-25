@@ -1,0 +1,105 @@
+---
+title: "Iris Species"
+date: "25/08/2021"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(datasets)
+library(plotly)
+library(nnet)
+library(MASS)
+```
+
+## Properties of Iris Flowers Dataset
+
+```{r properties, echo = FALSE, fig.width = 8, fig.height= 6}
+
+Noax <- list(
+  title = "",
+  zeroline = FALSE,
+  showline = FALSE,
+  showticklabels = FALSE,
+  showgrid = FALSE
+)
+
+p1 <- plot_ly(data = iris, y = ~Petal.Length, color = ~Species,  type = "box") %>%
+        layout(xaxis = Noax)
+p2 <- plot_ly(data = iris, y = ~Sepal.Length, color = ~Species,  type = "box", showlegend = F) %>%
+        layout(xaxis = Noax)
+p3 <- plot_ly(data = iris, y = ~Petal.Width, color = ~Species,  type = "box", showlegend = F) %>%
+        layout(xaxis = Noax)
+p4 <- plot_ly(data = iris, y = ~Sepal.Width, color = ~Species,  type = "box", showlegend = F) %>%
+        layout(xaxis = Noax)
+fig <- subplot(p1, p2, p3, p4, nrows = 2) %>% 
+        layout(title = "")
+
+annotations = list( 
+  list( 
+    x = 0.2,  
+    y = 1,  
+    text = "Petal Length",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE 
+  ),  
+  list( 
+    x = 0.8,  
+    y = 1,  
+    text = "Sepal Length",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE 
+  ),  
+  list( 
+    x = 0.2,  
+    y = 0.48,  
+    text = "Petal Width",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE 
+  ),
+  list( 
+    x = 0.8,  
+    y = 0.48,  
+    text = "Sepal Width",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE 
+  ))
+
+fig <- fig %>% layout(annotations = annotations)
+fig
+```
+
+## Step-wise Multinomial Logistic Regression
+```{r classification, echo = FALSE, results = 'hide'}
+full.model <- multinom(Species ~ ., data = iris)
+step.model <- full.model %>% MASS::stepAIC()
+```
+
+### Sepal Length feature was removed in the step-wise model:
+```{r model, echo = FALSE}
+step.model
+```
+
+## 3D plot
+```{r 3dplot, echo = FALSE, fig.width = 10, fig.height= 5}
+fig3d <- plot_ly(iris, x = ~Petal.Width, y = ~Sepal.Width, z = ~Petal.Length, color = ~Species, showlegend = TRUE) %>%
+        add_markers() %>%
+        layout(showlegend = TRUE, scene = list(xaxis = list(title ="Petal Width"),
+               yaxis = list(title = "Sepal Width"),
+               zaxis = list(title = "Petal Length"),
+               aspectmode = 'cube'),
+               legend = list(x = 0.1, y = 0.9, z= 1.0))
+fig3d
+```
